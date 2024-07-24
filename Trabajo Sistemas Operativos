@@ -1,0 +1,192 @@
+#!/bin/bash
+
+# Función para mostrar el menú
+show_menu() {
+    echo -e "Seleccione una opción:"
+    echo "1) Configurar usuario de Git"
+    echo "2) Clonar repositorio"
+    echo "3) Inicializar repositorio"
+    echo "4) Crear y agregar un nuevo archivo"
+    echo "5) Confirmar cambios"
+    echo "6) Ver estado del repositorio"
+    echo "7) Ver historial de commits"
+    echo "8) Crear una nueva rama"
+    echo "9) Cambiar de rama"
+    echo "10) Combinar ramas"
+    echo "11) Agregar origen remoto"
+    echo "12) Subir cambios al repositorio remoto"
+    echo "13) Obtener cambios del repositorio remoto"
+    echo "14) Salir"
+}
+
+# Verificar si git está instalado
+check_git() {
+    if ! command -v git &> /dev/null; then
+        echo "Git no está instalado. Por favor, instálalo antes de continuar."
+        exit 1
+    fi
+}
+
+# Funciones para cada opción
+configurar_usuario() {
+    check_git
+    read -p "Ingrese su nombre de usuario: " username
+    git config --global user.name "$username"
+    read -p "Ingrese su correo electrónico: " email
+    git config --global user.email "$email"
+    echo -e "Usuario configurado: $username <$email>"
+}
+
+clonar_repositorio() {
+    check_git
+    read -p "Ingrese la URL del repositorio: " url
+    git clone "$url"
+}
+
+inicializar_repositorio() {
+    check_git
+    git init
+}
+
+crear_y_agregar_archivo() {
+    check_git
+    read -p "Ingrese el nombre del nuevo archivo: " archivo
+    read -p "Ingrese el contenido del archivo: " contenido
+    echo "$contenido" > "$archivo"
+    git add "$archivo"
+    echo "Archivo '$archivo' creado y agregado al área de preparación."
+}
+
+confirmar_cambios() {
+    check_git
+    read -p "Ingrese el mensaje de confirmación: " mensaje
+    git commit -m "$mensaje"
+}
+
+ver_estado() {
+    check_git
+    git status
+}
+
+ver_historial() {
+    check_git
+    git log
+}
+
+crear_rama() {
+    check_git
+    read -p "Ingrese el nombre de la nueva rama: " rama
+    git branch "$rama"
+}
+
+cambiar_rama() {
+    check_git
+    read -p "Ingrese el nombre de la rama a la que desea cambiar: " rama
+    git checkout "$rama"
+}
+
+combinar_ramas() {
+    check_git
+    read -p "Ingrese el nombre de la rama de destino: " destino
+    read -p "Ingrese el nombre de la rama a combinar: " fuente
+    git checkout "$destino"
+    git merge "$fuente"
+}
+
+agregar_origen_remoto() {
+    check_git
+    read -p "Ingrese la URL del origen remoto: " url
+    if git remote get-url origin &> /dev/null; then
+        git remote set-url origin "$url"
+        echo "URL del origen remoto actualizada a $url."
+    else
+        git remote add origin "$url"
+        echo "Origen remoto 'origin' agregado con URL $url."
+    fi
+}
+
+subir_cambios() {
+    check_git
+
+    # Verificar si estamos en un repositorio Git
+    if [ ! -d ".git" ]; then
+        echo "No estás en un repositorio Git. Por favor, inicializa un repositorio primero."
+        return
+    fi
+
+    # Obtener la rama actual
+    rama_actual=$(git branch --show-current)
+
+    if [ -z "$rama_actual" ]; then
+        echo "No se pudo determinar la rama actual. Asegúrate de estar en una rama válida."
+        return
+    fi
+
+    # Verificar si hay cambios confirmados
+    cambios_no_confirmados=$(git status --porcelain)
+    if [ ! -z "$cambios_no_confirmados" ]; then
+        echo "Hay cambios no confirmados en el directorio de trabajo."
+        read -p "¿Deseas confirmar estos cambios antes de subir? (s/n): " confirmar
+        if [ "$confirmar" = "s" ]; then
+            read -p "Ingrese el mensaje de confirmación: " mensaje
+            git add .
+            git commit -m "$mensaje"
+        else
+            echo "Los cambios no serán confirmados. Subiendo solo los cambios ya confirmados."
+        fi
+    fi
+
+    # Intentar subir los cambios
+    echo "Subiendo la rama '$rama_actual' al repositorio remoto..."
+    if git push origin "$rama_actual"; then
+        echo "Cambios subidos exitosamente a la rama '$rama_actual'."
+    else
+        echo "Error al subir los cambios a la rama '$rama_actual'."
+        echo "Verifica la configuración del repositorio remoto y tu acceso."
+    fi
+}
+
+obtener_cambios() {
+    check_git
+
+    # Obtener la rama actual
+    rama_actual=$(git branch --show-current)
+
+    # Confirmar si la rama está actualizada con el remoto
+    git fetch origin
+    git status | grep -q 'Your branch is behind'
+    if [ $? -eq 0 ]; then
+        echo "La rama '$rama_actual' está desactualizada con respecto al repositorio remoto."
+        read -p "¿Desea obtener los últimos cambios del remoto? (s/n): " obtener
+        if [ "$obtener" = "s" ]; then
+            git pull origin "$rama_actual"
+        else
+            echo "No se han obtenido cambios."
+        fi
+    else
+        echo "La rama '$rama_actual' ya está actualizada con respecto al repositorio remoto."
+    fi
+}
+
+# Menu principal
+while true; do
+    show_menu
+    read -p "Seleccione una opción: " opcion
+    case $opcion in
+        1) configurar_usuario ;;
+        2) clonar_repositorio ;;
+        3) inicializar_repositorio ;;
+        4) crear_y_agregar_archivo ;;
+        5) confirmar_cambios ;;
+        6) ver_estado ;;
+        7) ver_historial ;;
+        8) crear_rama ;;
+        9) cambiar_rama ;;
+        10) combinar_ramas ;;
+        11) agregar_origen_remoto ;;
+        12) subir_cambios ;;
+        13) obtener_cambios ;;
+        14) echo -e "Saliendo..."; break ;;
+        *) echo -e "Opción no válida" ;;
+    esac
+done
