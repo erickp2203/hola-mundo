@@ -22,7 +22,7 @@ menu() {
 # Verificar si git está instalado
 git_() {
     if ! command -v git &> /dev/null; then
-        echo "Git no está instalado. Por favor, instalalo antes de continuar."
+        echo "Por favor, verifique si el Github esta instalalo antes de continuar."
         exit 1
     fi
 }
@@ -40,7 +40,11 @@ configurar_usuario() {
 clonar_repositorio() {
     git_
     read -p "Ingrese la URL del repositorio: " url
-    git clone "$url"
+    if git ls-remote "$url" &> /dev/null; then
+        git clone "$url"
+    else
+        echo "La URL proporcionada no parece válida o no se puede acceder."
+    fi
 }
 
 inicializar_repositorio() {
@@ -51,6 +55,14 @@ inicializar_repositorio() {
 crear_y_agregar_archivo() {
     git_
     read -p "Ingrese el nombre del archivo: " archivo
+    if [ -e "$archivo" ]; then
+        echo "El archivo '$archivo' ya existe. ¿Desea sobrescribirlo? (s/n): "
+        read respuesta
+        if [ "$respuesta" != "s" ]; then
+            echo "Operación cancelada."
+            return
+        fi
+    fi
     read -p "Ingrese el contenido del archivo: " contenido
     echo "$contenido" > "$archivo"
     git add "$archivo"
