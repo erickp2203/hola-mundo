@@ -20,7 +20,7 @@ menu() {
 }
 
 # Verificar si git está instalado
-git() {
+git_() {
     if ! command -v git &> /dev/null; then
         echo "Git no está instalado. Por favor, instalalo antes de continuar."
         exit 1
@@ -29,7 +29,7 @@ git() {
 
 # Funciones para cada opción
 configurar_usuario() {
-    git
+    git_
     read -p "Ingrese su nombre de usuario: " username
     git config --global user.name "$username"
     read -p "Ingrese su correo electrónico: " email
@@ -38,18 +38,18 @@ configurar_usuario() {
 }
 
 clonar_repositorio() {
-    git
+    git_
     read -p "Ingrese la URL del repositorio: " url
     git clone "$url"
 }
 
 inicializar_repositorio() {
-    git
+    git_
     git init
 }
 
 crear_y_agregar_archivo() {
-    git
+    git_
     read -p "Ingrese el nombre del archivo: " archivo
     read -p "Ingrese el contenido del archivo: " contenido
     echo "$contenido" > "$archivo"
@@ -58,35 +58,35 @@ crear_y_agregar_archivo() {
 }
 
 confirmar_cambios() {
-    git
+    git_
     read -p "Ingrese el mensaje de confirmación: " mensaje
     git commit -m "$mensaje"
 }
 
 ver_estado() {
-    git
+    git_
     git status
 }
 
 ver_historial() {
-    git
+    git_
     git log
 }
 
 crear_rama() {
-    git
+    git_
     read -p "Ingrese el nombre de la nueva rama: " rama
     git branch "$rama"
 }
 
 cambiar_rama() {
-    git
+    git_
     read -p "Ingrese el nombre de la rama a la que desea cambiar: " rama
     git checkout "$rama"
 }
 
 combinar_ramas() {
-    git
+    git_
     read -p "Ingrese el nombre de la rama de destino: " destino
     read -p "Ingrese el nombre de la rama a combinar: " fuente
     git checkout "$destino"
@@ -94,7 +94,7 @@ combinar_ramas() {
 }
 
 agregar_origen_remoto() {
-    git
+    git_
     read -p "Ingrese la URL del origen remoto: " url
     if git remote get-url origin &> /dev/null; then
         git remote set-url origin "$url"
@@ -106,7 +106,7 @@ agregar_origen_remoto() {
 }
 
 subir_cambios() {
-    git
+    git_
 
     # Verificar si estamos en un repositorio Git
     if [ ! -d ".git" ]; then
@@ -147,7 +147,7 @@ subir_cambios() {
 }
 
 obtener_cambios() {
-    git
+    git_
 
     # Obtener la rama actual
     rama_actual=$(git branch --show-current)
