@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Función para mostrar el menú
-show_menu() {
+# Menú
+menu() {
     echo -e "Seleccione una opción:"
     echo "1) Configurar usuario de Git"
     echo "2) Clonar repositorio"
@@ -11,7 +11,7 @@ show_menu() {
     echo "6) Ver estado del repositorio"
     echo "7) Ver historial de commits"
     echo "8) Crear una nueva rama"
-    echo "9) Cambiar de rama"
+    echo "9) Cambiar de ramas"
     echo "10) Combinar ramas"
     echo "11) Agregar origen remoto"
     echo "12) Subir cambios al repositorio remoto"
@@ -20,16 +20,16 @@ show_menu() {
 }
 
 # Verificar si git está instalado
-check_git() {
+git() {
     if ! command -v git &> /dev/null; then
-        echo "Git no está instalado. Por favor, instálalo antes de continuar."
+        echo "Git no está instalado. Por favor, instalalo antes de continuar."
         exit 1
     fi
 }
 
 # Funciones para cada opción
 configurar_usuario() {
-    check_git
+    git
     read -p "Ingrese su nombre de usuario: " username
     git config --global user.name "$username"
     read -p "Ingrese su correo electrónico: " email
@@ -38,19 +38,19 @@ configurar_usuario() {
 }
 
 clonar_repositorio() {
-    check_git
+    git
     read -p "Ingrese la URL del repositorio: " url
     git clone "$url"
 }
 
 inicializar_repositorio() {
-    check_git
+    git
     git init
 }
 
 crear_y_agregar_archivo() {
-    check_git
-    read -p "Ingrese el nombre del nuevo archivo: " archivo
+    git
+    read -p "Ingrese el nombre del archivo: " archivo
     read -p "Ingrese el contenido del archivo: " contenido
     echo "$contenido" > "$archivo"
     git add "$archivo"
@@ -58,35 +58,35 @@ crear_y_agregar_archivo() {
 }
 
 confirmar_cambios() {
-    check_git
+    git
     read -p "Ingrese el mensaje de confirmación: " mensaje
     git commit -m "$mensaje"
 }
 
 ver_estado() {
-    check_git
+    git
     git status
 }
 
 ver_historial() {
-    check_git
+    git
     git log
 }
 
 crear_rama() {
-    check_git
+    git
     read -p "Ingrese el nombre de la nueva rama: " rama
     git branch "$rama"
 }
 
 cambiar_rama() {
-    check_git
+    git
     read -p "Ingrese el nombre de la rama a la que desea cambiar: " rama
     git checkout "$rama"
 }
 
 combinar_ramas() {
-    check_git
+    git
     read -p "Ingrese el nombre de la rama de destino: " destino
     read -p "Ingrese el nombre de la rama a combinar: " fuente
     git checkout "$destino"
@@ -94,7 +94,7 @@ combinar_ramas() {
 }
 
 agregar_origen_remoto() {
-    check_git
+    git
     read -p "Ingrese la URL del origen remoto: " url
     if git remote get-url origin &> /dev/null; then
         git remote set-url origin "$url"
@@ -106,7 +106,7 @@ agregar_origen_remoto() {
 }
 
 subir_cambios() {
-    check_git
+    git
 
     # Verificar si estamos en un repositorio Git
     if [ ! -d ".git" ]; then
@@ -147,7 +147,7 @@ subir_cambios() {
 }
 
 obtener_cambios() {
-    check_git
+    git
 
     # Obtener la rama actual
     rama_actual=$(git branch --show-current)
@@ -170,7 +170,7 @@ obtener_cambios() {
 
 # Menu principal
 while true; do
-    show_menu
+    menu
     read -p "Seleccione una opción: " opcion
     case $opcion in
         1) configurar_usuario ;;
